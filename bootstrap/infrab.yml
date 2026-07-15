@@ -1,28 +1,4 @@
 ---
-# File: templates/service-kong-8002-svc.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: kong-8002-svc
-  namespace: infrab
-  labels:
-    app.kubernetes.io/name: kong-8002-svc
-    app.kubernetes.io/managed-by: struct8
-    app.kubernetes.io/instance: State8
-    cloudman.io/user: rmay-struct
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
-spec:
-  type: ClusterIP
-  ports:
-    - name: http-8002
-      port: 80
-      targetPort: 8002
-      protocol: TCP
-  selector:
-    app.kubernetes.io/name: kong
-
----
 # File: templates/service-kong-metrics-svc.yaml
 apiVersion: v1
 kind: Service
@@ -42,6 +18,30 @@ spec:
     - name: metrics
       port: 8100
       targetPort: 8100
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: kong
+
+---
+# File: templates/service-kong-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong-svc
+  namespace: infrab
+  labels:
+    app.kubernetes.io/name: kong-svc
+    app.kubernetes.io/managed-by: struct8
+    app.kubernetes.io/instance: State8
+    cloudman.io/user: rmay-struct
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http-80
+      port: 80
+      targetPort: 8002
       protocol: TCP
   selector:
     app.kubernetes.io/name: kong
@@ -150,7 +150,7 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: kong-8002-svc
+        - name: kong-svc
           namespace: infrab
           port: 80
   hostnames:
@@ -179,11 +179,11 @@ spec:
           containers:
             - resources:
                 requests:
-                  cpu: 250m
-                  memory: 256Mi
+                  cpu: "250m"
+                  memory: "256Mi"
                 limits:
-                  cpu: 1
-                  memory: 1Gi
+                  cpu: "1"
+                  memory: "1Gi"
               ports:
                 - name: metrics
                   containerPort: 8100
@@ -282,4 +282,3 @@ config:
   hide_client_headers: false
   error_code: 0
   sync_rate: 120
-
